@@ -94,50 +94,6 @@ Aturan menjawab:
 - Berikan jawaban yang ringkas dan mudah dipahami dalam bentuk poin-poin.
 `;
 
-// Endpoint Chat Multimodal (Mendukung Teks + File Gambar/Audio)
-// app.post('/api/chat', upload.single('file'), async (req, res) => {
-//   try {
-//     const { message } = req.body;
-//     const file = req.file;
-
-//     const parts = [];
-
-//     // Jika pengguna mengirim Teks
-//     if (message) {
-//       parts.push({ text: message });
-//     }
-
-//     // Jika pengguna mengunggah File (Gambar / Audio)
-//     if (file) {
-//       const base64Data = file.buffer.toString('base64');
-//       parts.push({
-//         inlineData: {
-//           mimeType: file.mimetype,
-//           data: base64Data
-//         }
-//       });
-//     }
-
-//     if (parts.length === 0) {
-//       return res.status(400).json({ error: 'Pesan atau file tidak boleh kosong' });
-//     }
-
-//     const response = await ai.models.generateContent({
-//       model: 'gemini-flash-latest',
-//       contents: parts,
-//       config: {
-//         temperature: 0.3,
-//         systemInstruction: SYSTEM_INSTRUCTION,
-//       },
-//     });
-
-//     res.json({ reply: response.text });
-//   } catch (error) {
-//     console.error('Error pada server:', error);
-//     res.status(500).json({ error: 'Terjadi kesalahan pada server AI.' });
-//   }
-// });
-
 app.post('/api/chat', upload.single('file'), async (req, res) => {
   try {
     const { message } = req.body;
