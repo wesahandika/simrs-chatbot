@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<!-- // INI BISA KIRIM TEXT -->
+<!-- <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -171,6 +172,547 @@
       if (event.key === 'Enter') {
         sendMessage();
       }
+    }
+  </script>
+</body>
+</html> -->
+
+
+
+
+<!-- // INI BISA KIRIM TEXT, GAMBAR DAN JUGA INVOIS -->
+<!-- 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMRS Virtual Assistant - Inggit</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #eef2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .chat-container {
+      width: 450px;
+      max-width: 95%;
+      height: 620px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background-color: #007bf5;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+    .chat-header h2 { font-size: 1.2rem; }
+    .chat-header p { font-size: 0.8rem; opacity: 0.9; }
+    .chat-box {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .bot {
+      background-color: #f0f4f9;
+      color: #1f1f1f;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+    .user {
+      background-color: #007bf5;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+    .input-area {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-top: 1px solid #e0e0e0;
+      background: #fff;
+      gap: 8px;
+    }
+    .input-area input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+    .icon-btn {
+      cursor: pointer;
+      padding: 8px 10px;
+      background: #f0f4f9;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn:hover { background: #e0e8f5; }
+    .recording { background-color: #ff4d4d !important; color: white; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    .input-area button.send-btn {
+      padding: 10px 16px;
+      background-color: #007bf5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .input-area button.send-btn:hover { background-color: #005bb5; }
+    #filePreview {
+      font-size: 0.75rem;
+      color: #007bf5;
+      padding: 4px 16px;
+      background: #f0f4f9;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h2>🏥 Inggit - SIMRS Virtual Assistant</h2>
+      <p>Layanan Informasi & Pendaftaran Rumah Sakit</p>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">
+        Halo! Saya <b>Inggit</b>, Asisten Virtual resmi Rumah Sakit. Ada yang bisa saya bantu? Anda bisa mengetik pertanyaan, mengunggah foto berkas/rujukan, atau merekam pesan suara!
+      </div>
+    </div>
+
+    <div id="filePreview"></div>
+
+    <div class="input-area">
+      <label class="icon-btn" title="Unggah Foto / Berkas">
+        📎
+        <input type="file" id="fileInput" accept="image/*,audio/*" style="display:none" onchange="handleFileSelect()">
+      </label>
+
+      <button class="icon-btn" id="recordBtn" onclick="toggleRecording()" title="Rekam Suara">🎙️</button>
+
+      <input type="text" id="userInput" placeholder="Ketik pertanyaan Anda..." onkeypress="handleKeyPress(event)">
+      <button class="send-btn" onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedFile = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    function handleFileSelect() {
+      const fileInput = document.getElementById('fileInput');
+      const preview = document.getElementById('filePreview');
+      if (fileInput.files.length > 0) {
+        selectedFile = fileInput.files[0];
+        preview.innerText = `📎 Terpilih: ${selectedFile.name}`;
+        preview.style.display = 'block';
+      }
+    }
+
+    async function toggleRecording() {
+      const recordBtn = document.getElementById('recordBtn');
+      const preview = document.getElementById('filePreview');
+
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+            selectedFile = new File([audioBlob], 'voice-note.mp3', { type: 'audio/mp3' });
+            preview.innerText = `🎙️ Voice Note siap dikirim`;
+            preview.style.display = 'block';
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+          recordBtn.classList.add('recording');
+          recordBtn.innerText = '⏹️';
+        } catch (err) {
+          alert('Gagal mengakses mikrofon browser.');
+        }
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordBtn.classList.remove('recording');
+        recordBtn.innerText = '🎙️';
+      }
+    }
+
+    async function sendMessage() {
+      const inputEl = document.getElementById('userInput');
+      const chatBox = document.getElementById('chatBox');
+      const preview = document.getElementById('filePreview');
+
+      const text = inputEl.value.trim();
+      const fileToSend = selectedFile;
+
+      if (!text && !fileToSend) return;
+
+      let userDisplayMsg = text;
+      if (fileToSend) {
+        userDisplayMsg += text ? `\n[File: ${fileToSend.name}]` : `[Mengirim File: ${fileToSend.name}]`;
+      }
+
+      appendMessage(userDisplayMsg, 'user');
+
+      const formData = new FormData();
+      if (text) formData.append('message', text);
+      if (fileToSend) formData.append('file', fileToSend);
+
+      // Reset Input
+      inputEl.value = '';
+      selectedFile = null;
+      document.getElementById('fileInput').value = '';
+      preview.style.display = 'none';
+
+      const loadingEl = document.createElement('div');
+      loadingEl.className = 'message bot';
+      loadingEl.innerText = 'Inggit sedang memproses...';
+      chatBox.appendChild(loadingEl);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        chatBox.removeChild(loadingEl);
+
+        if (data.reply) {
+          appendMessage(data.reply, 'bot');
+        } else {
+          appendMessage('Maaf, terjadi masalah saat memproses tanggapan.', 'bot');
+        }
+      } catch (err) {
+        chatBox.removeChild(loadingEl);
+        appendMessage('Maaf, gagal terhubung ke server.', 'bot');
+      }
+    }
+
+    function appendMessage(text, sender) {
+      const chatBox = document.getElementById('chatBox');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      msgDiv.innerText = text;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') sendMessage();
+    }
+  </script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIMRS Virtual Assistant - Inggit</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #eef2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .chat-container {
+      width: 450px;
+      max-width: 95%;
+      height: 620px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background-color: #007bf5;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+    .chat-header h2 { font-size: 1.2rem; }
+    .chat-header p { font-size: 0.8rem; opacity: 0.9; }
+    .chat-box {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .bot {
+      background-color: #f0f4f9;
+      color: #1f1f1f;
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+    .user {
+      background-color: #007bf5;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+    .input-area {
+      display: flex;
+      align-items: center;
+      padding: 12px;
+      border-top: 1px solid #e0e0e0;
+      background: #fff;
+      gap: 8px;
+    }
+    .input-area input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+    .icon-btn {
+      cursor: pointer;
+      padding: 8px 10px;
+      background: #f0f4f9;
+      border-radius: 6px;
+      font-size: 1.1rem;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn:hover { background: #e0e8f5; }
+    .recording { background-color: #ff4d4d !important; color: white; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    .input-area button.send-btn {
+      padding: 10px 16px;
+      background-color: #007bf5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .input-area button.send-btn:hover { background-color: #005bb5; }
+    #filePreview {
+      font-size: 0.75rem;
+      color: #007bf5;
+      padding: 4px 16px;
+      background: #f0f4f9;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="chat-container">
+    <div class="chat-header">
+      <h2>🏥 Inggit - SIMRS Virtual Assistant</h2>
+      <p>Layanan Informasi & Pendaftaran Rumah Sakit</p>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+      <div class="message bot">
+        Halo! Saya <b>Inggit</b>, Asisten Virtual resmi Rumah Sakit. Ada yang bisa saya bantu? Anda bisa mengetik pertanyaan, mengunggah foto berkas/rujukan, atau merekam pesan suara!
+      </div>
+    </div>
+
+    <div id="filePreview"></div>
+
+    <div class="input-area">
+      <label class="icon-btn" title="Unggah Foto / Berkas">
+        📎
+        <input type="file" id="fileInput" accept="image/*,audio/*" style="display:none" onchange="handleFileSelect()">
+      </label>
+
+      <button class="icon-btn" id="recordBtn" onclick="toggleRecording()" title="Rekam Suara">🎙️</button>
+
+      <input type="text" id="userInput" placeholder="Ketik pertanyaan Anda..." onkeypress="handleKeyPress(event)">
+      <button class="send-btn" onclick="sendMessage()">Kirim</button>
+    </div>
+  </div>
+
+  <script>
+    let selectedFile = null;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    function handleFileSelect() {
+      const fileInput = document.getElementById('fileInput');
+      const preview = document.getElementById('filePreview');
+      if (fileInput.files.length > 0) {
+        selectedFile = fileInput.files[0];
+        preview.innerText = `📎 Terpilih: ${selectedFile.name}`;
+        preview.style.display = 'block';
+      }
+    }
+
+    async function toggleRecording() {
+      const recordBtn = document.getElementById('recordBtn');
+      const preview = document.getElementById('filePreview');
+
+      if (!isRecording) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaRecorder = new MediaRecorder(stream);
+          audioChunks = [];
+
+          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+            selectedFile = new File([audioBlob], 'voice-note.mp3', { type: 'audio/mp3' });
+            preview.innerText = `🎙️ Voice Note siap dikirim`;
+            preview.style.display = 'block';
+          };
+
+          mediaRecorder.start();
+          isRecording = true;
+          recordBtn.classList.add('recording');
+          recordBtn.innerText = '⏹️';
+        } catch (err) {
+          alert('Gagal mengakses mikrofon browser.');
+        }
+      } else {
+        mediaRecorder.stop();
+        isRecording = false;
+        recordBtn.classList.remove('recording');
+        recordBtn.innerText = '🎙️';
+      }
+    }
+
+    async function sendMessage() {
+      const inputEl = document.getElementById('userInput');
+      const chatBox = document.getElementById('chatBox');
+      const preview = document.getElementById('filePreview');
+
+      const text = inputEl.value.trim();
+      const fileToSend = selectedFile;
+
+      if (!text && !fileToSend) return;
+
+      let userDisplayMsg = text;
+      if (fileToSend) {
+        userDisplayMsg += text ? `\n[File: ${fileToSend.name}]` : `[Mengirim File: ${fileToSend.name}]`;
+      }
+
+      appendMessage(userDisplayMsg, 'user');
+
+      const formData = new FormData();
+      if (text) formData.append('message', text);
+      if (fileToSend) formData.append('file', fileToSend);
+
+      // Reset Input
+      inputEl.value = '';
+      selectedFile = null;
+      document.getElementById('fileInput').value = '';
+      preview.style.display = 'none';
+
+      // Indikator loading animasi titik bergerak
+      const loadingEl = document.createElement('div');
+      loadingEl.className = 'message bot';
+      chatBox.appendChild(loadingEl);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      let dotCount = 0;
+      loadingEl.innerText = 'Inggit sedang memproses';
+      const intervalId = setInterval(() => {
+        dotCount = (dotCount % 3) + 1;
+        loadingEl.innerText = 'Inggit sedang memproses' + '.'.repeat(dotCount);
+      }, 400);
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        clearInterval(intervalId);
+        chatBox.removeChild(loadingEl);
+
+        if (data.reply) {
+          appendMessage(data.reply, 'bot');
+        } else {
+          appendMessage('Maaf, terjadi masalah saat memproses tanggapan.', 'bot');
+        }
+      } catch (err) {
+        clearInterval(intervalId);
+        chatBox.removeChild(loadingEl);
+        appendMessage('Maaf, gagal terhubung ke server.', 'bot');
+      }
+    }
+
+    function appendMessage(text, sender) {
+      const chatBox = document.getElementById('chatBox');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      msgDiv.innerText = text;
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') sendMessage();
     }
   </script>
 </body>
