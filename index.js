@@ -1,69 +1,3 @@
-// // INI BISA KIRIM TEXT
-// require('dotenv').config();
-// const express = require('express');
-// const { GoogleGenAI } = require('@google/genai');
-
-// const app = express();
-// const port = process.env.PORT || 3000;
-
-// // Middleware untuk membaca JSON dan melayani file statis (HTML/CSS UI nanti)
-// app.use(express.json());
-// app.use(express.static('public'));
-
-// // Inisialisasi SDK Gemini dengan API Key dari .env
-// const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-// // System Instruction khusus untuk Inggit (Asisten Virtual RS)
-// const SYSTEM_INSTRUCTION = `
-// Kamu adalah "Inggit", Asisten Virtual resmi dari Rumah Sakit.
-// Tugasmu adalah membantu pasien dan pengunjung memberikan informasi mengenai:
-// 1. Cara pendaftaran antrean poliklinik online/offline.
-// 2. Persyaratan pendaftaran pasien BPJS Kesehatan dan Umum.
-// 3. Informasi jam operasional layanan poliklinik, IGD, dan pendaftaran.
-// 4. Edukasi umum mengenai langkah persiapan sebelum pemeriksaan laboratorium/radiologi.
-
-// Aturan menjawab:
-// - Gunakan bahasa Indonesia yang ramah, santun, dan empati (ramah khas pelayanan kesehatan).
-// - Jangan pernah memberikan diagnosis medis atau resep obat. Jika pengguna bertanya tentang gejala penyakit berat, sarankan untuk segera berkonsultasi dengan dokter di IGD/Poli.
-// - Berikan jawaban yang ringkas dan mudah dipahami dalam bentuk poin-poin.
-// `;
-
-// // Endpoint API untuk kirim & terima pesan chat
-// app.post('/api/chat', async (req, res) => {
-//   try {
-//     const { message } = req.body;
-
-//     if (!message) {
-//       return res.status(400).json({ error: 'Pesan tidak boleh kosong' });
-//     }
-
-//     // Memanggil model yang aktif di API Key kamu
-//     const response = await ai.models.generateContent({
-//       model: 'gemini-flash-latest', // <-- Ganti bagian ini ya!
-//       contents: message,
-//       config: {
-//         temperature: 0.3,
-//         systemInstruction: SYSTEM_INSTRUCTION,
-//       },
-//     });
-
-//     res.json({ reply: response.text });
-//   } catch (error) {
-//     console.error('Error pada server:', error);
-//     res.status(500).json({ error: 'Terjadi kesalahan pada server AI.' });
-//   }
-// });
-
-// // Jalankan server Express
-// app.listen(port, () => {
-//   console.log(`Server SIMRS Bot running di http://localhost:${port}`);
-// });
-
-
-
-
-
-
 
 // INI BISA KIRIM TEXT, GAMBAR DAN JUGA INVOIS
 require('dotenv').config();
@@ -81,17 +15,24 @@ app.use(express.static('public'));
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const SYSTEM_INSTRUCTION = `
-Kamu adalah "Inggit", Asisten Virtual resmi dari Rumah Sakit.
-Tugasmu adalah membantu pasien dan pengunjung memberikan informasi mengenai:
-1. Cara pendaftaran antrean poliklinik online/offline.
-2. Persyaratan pendaftaran pasien BPJS Kesehatan dan Umum (termasuk membaca/memeriksa foto dokumen rujukan/KTP pasien jika dikirimkan).
-3. Informasi jam operasional layanan poliklinik, IGD, dan pendaftaran.
-4. Edukasi umum mengenai langkah persiapan sebelum pemeriksaan laboratorium/radiologi.
+Identitas & Karakter:
+Nama kamu adalah "Inggit", Asisten Virtual cerdas dan ramah dari Rumah Sakit.
+Kamu memiliki kepribadian yang ramah, sopan, sabar, solutif, dan berwawasan luas.
 
-Aturan menjawab:
-- Gunakan bahasa Indonesia yang ramah, santun, dan empati (ramah khas pelayanan kesehatan).
-- Jangan pernah memberikan diagnosis medis atau resep obat. Jika pengguna bertanya tentang gejala penyakit berat, sarankan untuk segera berkonsultasi dengan dokter di IGD/Poli.
-- Berikan jawaban yang ringkas dan mudah dipahami dalam bentuk poin-poin.
+Tugas Utama (Layanan RS):
+1. Pendaftaran Antrean: Menjelaskan alur pendaftaran antrean poliklinik online maupun offline.
+2. Syarat Pasien: Menginfokan persyaratan pasien BPJS dan Umum, serta membaca/mengecek kelengkapan foto rujukan/KTP jika dikirim.
+3. Operasional & Jadwal: Memberikan info jam buka poli, IGD 24 Jam, dan loket pendaftaran.
+4. Persiapan Tes: Menjelaskan persiapan dasar sebelum lab darah atau radiologi.
+
+Fleksibilitas Obrolan:
+- Kamu TETAP BISA dan DIIZINKAN menjawab pertanyaan umum apa saja di luar topik rumah sakit (seperti pertanyaan sains, tips harian, pengetahuan umum, atau sekadar mengobrol santai) dengan ramah dan informatif.
+- Tetap gunakan panggilan "Inggit" saat berinteraksi.
+
+Batasan Medis (Wajib):
+- Jangan memberikan diagnosis penyakit berat atau resep obat keras secara mandiri.
+- Jika pengguna mengeluhkan gejala medis darurat, sarankan segera ke IGD atau poliklinik dokter terdekat.
+- Format jawaban rapi, ringkas, dan mudah dibaca lewat layar HP.
 `;
 
 app.post('/api/chat', upload.single('file'), async (req, res) => {
@@ -101,30 +42,33 @@ app.post('/api/chat', upload.single('file'), async (req, res) => {
 
     const parts = [];
 
-    // Jika pengguna mengirim Teks
-    if (message) {
-      parts.push({ text: message });
-    }
-
     // Jika pengguna mengunggah File (Gambar / Audio)
     if (file) {
       const base64Data = file.buffer.toString('base64');
+      // Pastikan mimeType bersih dari parameter tambahan
+      const cleanMime = file.mimetype.split(';')[0];
       parts.push({
         inlineData: {
-          mimeType: file.mimetype,
+          mimeType: cleanMime,
           data: base64Data
         }
       });
+    }
+
+    // Jika pengguna mengirim Teks atau jika hanya mengirim suara
+    if (message) {
+      parts.push({ text: message });
+    } else if (file && file.mimetype.startsWith('audio/')) {
+      parts.push({ text: 'Dengarkan pesan suara ini, lalu jawab pertanyaannya dengan ramah dan lengkap.' });
     }
 
     if (parts.length === 0) {
       return res.status(400).json({ error: 'Pesan atau file tidak boleh kosong' });
     }
 
-    // Memanggil model Gemini
     const response = await ai.models.generateContent({
-      model: 'gemini-flash-latest',
-      contents: parts, // Langsung lewatkan array parts
+      model: 'gemini-3.5-flash-lite',
+      contents: parts,
       config: {
         temperature: 0.3,
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -140,4 +84,12 @@ app.post('/api/chat', upload.single('file'), async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server SIMRS Bot running di http://localhost:${port}`);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Ada uncaughtException:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Ada unhandledRejection di:', promise, 'alasan:', reason);
 });

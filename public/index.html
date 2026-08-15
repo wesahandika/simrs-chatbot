@@ -1,186 +1,4 @@
-<!-- // INI BISA KIRIM TEXT -->
-<!-- <!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIMRS Virtual Assistant - Inggit</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      background-color: #eef2f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .chat-container {
-      width: 450px;
-      max-width: 95%;
-      height: 600px;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .chat-header {
-      background-color: #007bf5;
-      color: white;
-      padding: 16px;
-      text-align: center;
-    }
-    .chat-header h2 {
-      font-size: 1.2rem;
-    }
-    .chat-header p {
-      font-size: 0.8rem;
-      opacity: 0.9;
-    }
-    .chat-box {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .message {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      white-space: pre-wrap;
-    }
-    .bot {
-      background-color: #f0f4f9;
-      color: #1f1f1f;
-      align-self: flex-start;
-      border-bottom-left-radius: 2px;
-    }
-    .user {
-      background-color: #007bf5;
-      color: white;
-      align-self: flex-end;
-      border-bottom-right-radius: 2px;
-    }
-    .input-area {
-      display: flex;
-      padding: 12px;
-      border-top: 1px solid #e0e0e0;
-      background: #fff;
-    }
-    .input-area input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      outline: none;
-    }
-    .input-area button {
-      margin-left: 8px;
-      padding: 10px 16px;
-      background-color: #007bf5;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .input-area button:hover {
-      background-color: #005bb5;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="chat-container">
-    <div class="chat-header">
-      <h2>🏥 Inggit - SIMRS Virtual Assistant</h2>
-      <p>Layanan Informasi & Pendaftaran Rumah Sakit</p>
-    </div>
-
-    <div class="chat-box" id="chatBox">
-      <div class="message bot">
-        Halo! Saya <b>Inggit</b>, Asisten Virtual resmi Rumah Sakit. Ada yang bisa saya bantu terkait jadwal dokter, antrean BPJS/Umum, atau jam operasional?
-      </div>
-    </div>
-
-    <div class="input-area">
-      <input type="text" id="userInput" placeholder="Ketik pertanyaan Anda di sini..." onkeypress="handleKeyPress(event)">
-      <button onclick="sendMessage()">Kirim</button>
-    </div>
-  </div>
-
-  <script>
-    async function sendMessage() {
-      const inputEl = document.getElementById('userInput');
-      const chatBox = document.getElementById('chatBox');
-      const text = inputEl.value.trim();
-
-      if (!text) return;
-
-      // Tampilkan pesan pengguna di chat UI
-      appendMessage(text, 'user');
-      inputEl.value = '';
-
-      // Tampilkan indikator loading sederhana
-      const loadingEl = document.createElement('div');
-      loadingEl.className = 'message bot';
-      loadingEl.innerText = 'Inggit sedang mengetik...';
-      chatBox.appendChild(loadingEl);
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text })
-        });
-
-        const data = await response.json();
-        chatBox.removeChild(loadingEl);
-
-        if (data.reply) {
-          appendMessage(data.reply, 'bot');
-        } else {
-          appendMessage('Maaf, terjadi masalah saat memproses tanggapan.', 'bot');
-        }
-      } catch (err) {
-        chatBox.removeChild(loadingEl);
-        appendMessage('Maaf, gagal terhubung ke server.', 'bot');
-      }
-    }
-
-    function appendMessage(text, sender) {
-      const chatBox = document.getElementById('chatBox');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `message ${sender}`;
-      msgDiv.innerText = text;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function handleKeyPress(event) {
-      if (event.key === 'Enter') {
-        sendMessage();
-      }
-    }
-  </script>
-</body>
-</html> -->
-
-
-
-
-<!-- // INI BISA KIRIM TEXT, GAMBAR DAN JUGA INVOIS -->
+<!-- // INI BISA KIRIM TEXT, GAMBAR, VOICE NOTE + QUICK CHIPS + TYPING INDICATOR + TYPEWRITER EFFECT -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -235,6 +53,7 @@
       font-size: 0.9rem;
       line-height: 1.4;
       white-space: pre-wrap;
+      word-break: break-word;
     }
     .bot {
       background-color: #f0f4f9;
@@ -248,6 +67,54 @@
       align-self: flex-end;
       border-bottom-right-radius: 2px;
     }
+
+    /* QUICK ACTION CHIPS */
+    .quick-chips-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .chip-btn {
+      background: #e8f2ff;
+      color: #007bf5;
+      border: 1px solid #b8d7ff;
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .chip-btn:hover {
+      background: #007bf5;
+      color: #ffffff;
+      border-color: #007bf5;
+    }
+
+    /* TYPING INDICATOR */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 16px;
+      min-height: 38px;
+    }
+    .typing-indicator span {
+      width: 7px;
+      height: 7px;
+      background-color: #8898aa;
+      border-radius: 50%;
+      display: inline-block;
+      animation: typingBounce 1.4s infinite ease-in-out both;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
     .input-area {
       display: flex;
       align-items: center;
@@ -305,8 +172,16 @@
     </div>
 
     <div class="chat-box" id="chatBox">
+      <!-- PESAN SAMBUTAN AWAL -->
       <div class="message bot">
-        Halo! Saya <b>Inggit</b>, Asisten Virtual resmi Rumah Sakit. Ada yang bisa saya bantu? Anda bisa mengetik pertanyaan, mengunggah foto berkas/rujukan, atau merekam pesan suara!
+        Halo! Saya <b>Inggit</b>, Asisten Virtual resmi Rumah Sakit. Ada yang bisa saya bantu? Anda bisa mengetik pertanyaan, mengunggah foto berkas/rujukan, merekam pesan suara, atau memilih topik di bawah ini:
+        
+        <div class="quick-chips-wrapper">
+          <button type="button" class="chip-btn" onclick="sendQuickMessage('Syarat pendaftaran pasien BPJS')">📋 Syarat BPJS</button>
+          <button type="button" class="chip-btn" onclick="sendQuickMessage('Jadwal dan jam operasional poliklinik')">⏰ Jadwal Poli</button>
+          <button type="button" class="chip-btn" onclick="sendQuickMessage('Cara daftar antrean online')">📱 Antrean Online</button>
+          <button type="button" class="chip-btn" onclick="sendQuickMessage('Persiapan tes laboratorium darah')">🧪 Persiapan Lab</button>
+        </div>
       </div>
     </div>
 
@@ -321,7 +196,7 @@
       <button class="icon-btn" id="recordBtn" onclick="toggleRecording()" title="Rekam Suara">🎙️</button>
 
       <input type="text" id="userInput" placeholder="Ketik pertanyaan Anda..." onkeypress="handleKeyPress(event)">
-      <button class="send-btn" onclick="sendMessage()">Kirim</button>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">Kirim</button>
     </div>
   </div>
 
@@ -351,15 +226,25 @@
           mediaRecorder = new MediaRecorder(stream);
           audioChunks = [];
 
-          mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-          mediaRecorder.onstop = () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-            selectedFile = new File([audioBlob], 'voice-note.mp3', { type: 'audio/mp3' });
-            preview.innerText = `🎙️ Voice Note siap dikirim`;
-            preview.style.display = 'block';
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data && e.data.size > 0) {
+              audioChunks.push(e.data);
+            }
           };
 
-          mediaRecorder.start();
+          mediaRecorder.onstop = () => {
+            let rawType = mediaRecorder.mimeType || 'audio/webm';
+            let cleanMimeType = rawType.split(';')[0];
+            const audioBlob = new Blob(audioChunks, { type: cleanMimeType });
+            
+            selectedFile = new File([audioBlob], 'voice-note.webm', { type: cleanMimeType });
+            preview.innerText = `🎙️ Voice Note siap dikirim (${(audioBlob.size / 1024).toFixed(1)} KB)`;
+            preview.style.display = 'block';
+
+            stream.getTracks().forEach(track => track.stop());
+          };
+
+          mediaRecorder.start(100);
           isRecording = true;
           recordBtn.classList.add('recording');
           recordBtn.innerText = '⏹️';
@@ -374,8 +259,47 @@
       }
     }
 
+    function sendQuickMessage(text) {
+      document.getElementById('userInput').value = text;
+      sendMessage();
+    }
+
+    // Helper format markdown dasar ke HTML
+    function formatMarkdown(text) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/\*(.*?)\*/g, '<i>$1</i>');
+    }
+
+    // Efek mengetik berjalan karakter demi karakter
+    function typeWriterEffect(rawText, callback) {
+      const chatBox = document.getElementById('chatBox');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message bot';
+      chatBox.appendChild(msgDiv);
+
+      let index = 0;
+      const speed = 12; // Kecepatan ketik (milidetik per karakter)
+
+      function writeChar() {
+        if (index < rawText.length) {
+          index++;
+          const currentText = rawText.substring(0, index);
+          msgDiv.innerHTML = formatMarkdown(currentText);
+          chatBox.scrollTop = chatBox.scrollHeight;
+          setTimeout(writeChar, speed);
+        } else {
+          msgDiv.innerHTML = formatMarkdown(rawText);
+          if (callback) callback();
+        }
+      }
+
+      writeChar();
+    }
+
     async function sendMessage() {
       const inputEl = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendBtn');
       const chatBox = document.getElementById('chatBox');
       const preview = document.getElementById('filePreview');
 
@@ -395,24 +319,19 @@
       if (text) formData.append('message', text);
       if (fileToSend) formData.append('file', fileToSend);
 
-      // Reset Input
+      // Reset Form Input & Disable Button saat memproses
       inputEl.value = '';
       selectedFile = null;
       document.getElementById('fileInput').value = '';
       preview.style.display = 'none';
+      sendBtn.disabled = true;
 
-      // Indikator loading animasi titik bergerak
-      const loadingEl = document.createElement('div');
-      loadingEl.className = 'message bot';
-      chatBox.appendChild(loadingEl);
+      // Tampilkan Animasi Indikator 3 Titik
+      const typingEl = document.createElement('div');
+      typingEl.className = 'message bot typing-indicator';
+      typingEl.innerHTML = '<span></span><span></span><span></span>';
+      chatBox.appendChild(typingEl);
       chatBox.scrollTop = chatBox.scrollHeight;
-
-      let dotCount = 0;
-      loadingEl.innerText = 'Inggit sedang memproses';
-      const intervalId = setInterval(() => {
-        dotCount = (dotCount % 3) + 1;
-        loadingEl.innerText = 'Inggit sedang memproses' + '.'.repeat(dotCount);
-      }, 400);
 
       try {
         const response = await fetch('/api/chat', {
@@ -421,19 +340,26 @@
         });
 
         const data = await response.json();
-        
-        clearInterval(intervalId);
-        chatBox.removeChild(loadingEl);
 
-        if (data.reply) {
-          appendMessage(data.reply, 'bot');
+        if (chatBox.contains(typingEl)) {
+          chatBox.removeChild(typingEl);
+        }
+
+        if (data && data.reply) {
+          // Panggil efek teks berjalan
+          typeWriterEffect(data.reply, () => {
+            sendBtn.disabled = false;
+          });
         } else {
-          appendMessage('Maaf, terjadi masalah saat memproses tanggapan.', 'bot');
+          appendMessage('Maaf, antrean sedang padat. Silakan tanyakan ulang ya!', 'bot');
+          sendBtn.disabled = false;
         }
       } catch (err) {
-        clearInterval(intervalId);
-        chatBox.removeChild(loadingEl);
+        if (chatBox.contains(typingEl)) {
+          chatBox.removeChild(typingEl);
+        }
         appendMessage('Maaf, gagal terhubung ke server.', 'bot');
+        sendBtn.disabled = false;
       }
     }
 
@@ -441,7 +367,7 @@
       const chatBox = document.getElementById('chatBox');
       const msgDiv = document.createElement('div');
       msgDiv.className = `message ${sender}`;
-      msgDiv.innerText = text;
+      msgDiv.innerHTML = formatMarkdown(text);
       chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
@@ -450,5 +376,6 @@
       if (event.key === 'Enter') sendMessage();
     }
   </script>
+
 </body>
 </html>
